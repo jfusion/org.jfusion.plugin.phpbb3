@@ -20,7 +20,6 @@ use Joomla\Uri\Uri;
 
 use Psr\Log\LogLevel;
 
-use JRegistry;
 use JUri;
 use JFactory;
 use JFile;
@@ -664,7 +663,7 @@ class Platform extends Joomla
     /**
      * Creates new thread and posts first post
      *
-     * @param JRegistry &$dbparams with discussion bot parameters
+     * @param Registry &$dbparams with discussion bot parameters
      * @param object &$contentitem
      * @param int $forumid Id of forum to create thread
      *
@@ -829,7 +828,7 @@ class Platform extends Joomla
 
 	 /**
       * Updates information in a specific thread/post
-      * @param JRegistry &$dbparams with discussion bot parameters
+      * @param Registry &$dbparams with discussion bot parameters
       * @param object &$existingthread with existing thread info
       * @param object &$contentitem object containing content information
 	  *
@@ -885,7 +884,7 @@ class Platform extends Joomla
 	/**
 	 * Creates a post from the quick reply
 	 *
-	 * @param JRegistry $params      object with discussion bot parameters
+	 * @param Registry $params      object with discussion bot parameters
 	 * @param stdClass  $ids         stdClass with forum id ($ids->forumid, thread id ($ids->threadid) and first post id ($ids->postid)
 	 * @param object    $contentitem object of content item
 	 * @param Userinfo  $userinfo    object info of the forum user
@@ -934,7 +933,7 @@ class Platform extends Joomla
 		$text = strip_tags($postinfo->text);
 
 		if(!empty($text)) {
-			$this->prepareText($text, 'forum', new JRegistry());
+			$this->prepareText($text, 'forum', new Registry());
 			$text = htmlspecialchars($text);
 
 			$bbcode = $this->helper->bbcode_parser($text);
@@ -1101,7 +1100,7 @@ class Platform extends Joomla
 	/**
 	 * Retrieves the posts to be displayed in the content item if enabled
 	 *
-	 * @param JRegistry $dbparams with discussion bot parameters
+	 * @param Registry $dbparams with discussion bot parameters
 	 * @param object $existingthread object with forumid, threadid, and postid (first post in thread)
 	 * @param int $start
 	 * @param int $limit
@@ -1480,7 +1479,7 @@ class Platform extends Joomla
 	 * forum (to be published in a thread or post; used by discussion bot)
 	 * activity (displayed in activity module; used by the activity module)
 	 * search (displayed as search results; used by search plugin)
-	 * @param JRegistry $params           (optional) Joomla parameter object passed in by JFusion's module/plugin
+	 * @param Registry $params           (optional) Joomla parameter object passed in by JFusion's module/plugin
 	 *
 	 * @return array  $status           Information passed back to calling script such as limit_applied
 	 */
@@ -1987,7 +1986,7 @@ HTML;
 
 	/**
 	 * @param string $where
-	 * @param JRegistry $pluginParam
+	 * @param Registry $pluginParam
 	 * @param string $ordering
 	 *
 	 * @return void

@@ -1,10 +1,18 @@
 {
     "name": "jfusion/plugin-phpbb3",
-    "type": "jfusion-plugin-phpbb3",
+    "type": "jfusion-plugin",
     "description": "Plugin for phpbb3 jfusion framework",
-    "keywords": ["jfusion", "plugin", "phpbb3", "framework"],
-    "homepage": "https://github.com/jfusion/org.jfusion.plugin.phpbb3",
+    "keywords": ["jfusion", "plugin", "phpbb3"],
+    "homepage": "http://jfusion.org",
     "license": "GPL-2.0+",
+    "authors": [
+        {
+            "name": "Morten Hundevad",
+            "email": "fannoj@gmail.com",
+            "homepage": "http://fanno.dk",
+            "role": "Developer"
+        }
+    ],
     "require": {
         "php": ">=5.3.10"
     },
