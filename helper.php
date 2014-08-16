@@ -110,7 +110,7 @@ class Helper extends Plugin
     function utf8_clean_string($text) {
         static $homographs = array();
         if (empty($homographs)) {
-            $homographs = include(Framework::getPluginPath($this->getName()) . '/utf/confusables.php');
+            $homographs = include(__DIR__ . '/utf/confusables.php');
         }
         $text = $this->utf8_case_fold_nfkc($text);
         $text = strtr($text, $homographs);
@@ -156,15 +156,15 @@ class Helper extends Plugin
         $option = 'not full';
         // common is always set
         if (!isset($uniarray['c'])) {
-            $uniarray['c'] = include (Framework::getPluginPath($this->getName()) . '/utf/case_fold_c.php');
+            $uniarray['c'] = include(__DIR__ . '/utf/case_fold_c.php');
         }
         // only set full if we need to
         if ($option === 'full' && !isset($uniarray['f'])) {
-            $uniarray['f'] = include(Framework::getPluginPath($this->getName()) . '/utf/case_fold_f.php');
+            $uniarray['f'] = include(__DIR__ . '/utf/case_fold_f.php');
         }
         // only set simple if we need to
         if ($option !== 'full' && !isset($uniarray['s'])) {
-            $uniarray['s'] = include(Framework::getPluginPath($this->getName()) . '/utf/case_fold_s.php');
+            $uniarray['s'] = include(__DIR__ . '/utf/case_fold_s.php');
         }
         // common is always replaced
         $text = strtr($text, $uniarray['c']);

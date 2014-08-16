@@ -1808,7 +1808,7 @@ HTML;
 		//see if the auth mod file exists
 		if (!file_exists($auth_file)) {
 			jimport('joomla.filesystem.file');
-			$copy_file = Framework::getPluginPath($this->getName()) . '/auth_jfusion.php';
+			$copy_file = __DIR__ . '/auth_jfusion.php';
 			JFile::copy($copy_file, $auth_file);
 		}
 		if (file_exists($auth_file)) {
