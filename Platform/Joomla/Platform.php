@@ -1740,9 +1740,9 @@ HTML;
 			$reason = '';
 
 			if ($this->helper->isVersion('3.1')) {
-				$mod_file = $this->getPluginFile('phpbb' . DIRECTORY_SEPARATOR . 'auth' . DIRECTORY_SEPARATOR . 'auth_jfusion.php', $error, $reason);
+				$mod_file = $this->getPluginFile('phpbb/auth/auth_jfusion.php', $error, $reason);
 			} else {
-				$mod_file = $this->getPluginFile('includes' . DIRECTORY_SEPARATOR . 'auth' . DIRECTORY_SEPARATOR . 'auth_jfusion.php', $error, $reason);
+				$mod_file = $this->getPluginFile('includes/auth/auth_jfusion.php', $error, $reason);
 			}
 
 			if ($error == 0) {
@@ -1800,15 +1800,15 @@ HTML;
 		$error = 0;
 		$reason = '';
 		if ($this->helper->isVersion('3.1')) {
-			$auth_file = $this->getPluginFile('phpbb' . DIRECTORY_SEPARATOR . 'auth' . DIRECTORY_SEPARATOR . 'auth_jfusion.php', $error, $reason);
+			$auth_file = $this->getPluginFile('phpbb/auth/auth_jfusion.php', $error, $reason);
 		} else {
-			$auth_file = $this->getPluginFile('includes' . DIRECTORY_SEPARATOR . 'auth' . DIRECTORY_SEPARATOR . 'auth_jfusion.php', $error, $reason);
+			$auth_file = $this->getPluginFile('includes/auth/auth_jfusion.php', $error, $reason);
 		}
 
 		//see if the auth mod file exists
 		if (!file_exists($auth_file)) {
 			jimport('joomla.filesystem.file');
-			$copy_file = JFUSION_PLUGIN_PATH . DIRECTORY_SEPARATOR . $this->getJname() . DIRECTORY_SEPARATOR . 'auth_jfusion.php';
+			$copy_file = Framework::getPluginPath($this->getName()) . '/auth_jfusion.php';
 			JFile::copy($copy_file, $auth_file);
 		}
 		if (file_exists($auth_file)) {
@@ -1818,7 +1818,7 @@ HTML;
 			//compare it with our joomla path
 			if (preg_match_all('/JFUSION_PATH/', $file_data, $matches)) {
 				$file_data = preg_replace('/JFUSION_JNAME/', $this->getJname(), $file_data);
-				$file_data = preg_replace('/JFUSION_PATH/', JPATH_SITE . DIRECTORY_SEPARATOR . 'components' . DIRECTORY_SEPARATOR . 'com_jfusion', $file_data);
+				$file_data = preg_replace('/JFUSION_PATH/', JPATH_SITE . '/components/com_jfusion', $file_data);
 				JFile::write($auth_file, $file_data);
 			}
 
@@ -1894,9 +1894,9 @@ HTML;
 			$source_path = $this->params->get('source_path');
 
 			if ($this->helper->isVersion('3.1')) {
-				$auth_file = $source_path . 'phpbb' . DIRECTORY_SEPARATOR . 'auth' . DIRECTORY_SEPARATOR . 'auth_jfusion.php';
+				$auth_file = $source_path . 'phpbb/auth/auth_jfusion.php';
 			} else {
-				$auth_file = $source_path . 'includes' . DIRECTORY_SEPARATOR . 'auth' . DIRECTORY_SEPARATOR . 'auth_jfusion.php';
+				$auth_file = $source_path . 'includes/auth/auth_jfusion.php';
 			}
 
 			if (file_exists($auth_file)) {
@@ -1947,7 +1947,7 @@ HTML;
 	function clearConfigCache()
 	{
 		$source_path = $this->params->get('source_path');
-		$cache = $source_path . 'cache' . DIRECTORY_SEPARATOR . 'data_global.php';
+		$cache = $source_path . 'cache/data_global.php';
 		if (file_exists($cache)) {
 			jimport('joomla.filesystem.file');
 			return JFile::delete($cache);

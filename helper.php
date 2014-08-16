@@ -110,7 +110,7 @@ class Helper extends Plugin
     function utf8_clean_string($text) {
         static $homographs = array();
         if (empty($homographs)) {
-            $homographs = include (JFUSION_PLUGIN_PATH . DIRECTORY_SEPARATOR . $this->getJname() . DIRECTORY_SEPARATOR . 'utf' . DIRECTORY_SEPARATOR . 'confusables.php');
+            $homographs = include(Framework::getPluginPath($this->getName()) . '/utf/confusables.php');
         }
         $text = $this->utf8_case_fold_nfkc($text);
         $text = strtr($text, $homographs);
@@ -156,15 +156,15 @@ class Helper extends Plugin
         $option = 'not full';
         // common is always set
         if (!isset($uniarray['c'])) {
-            $uniarray['c'] = include (JFUSION_PLUGIN_PATH . DIRECTORY_SEPARATOR . $this->getJname() . DIRECTORY_SEPARATOR . 'utf' . DIRECTORY_SEPARATOR . 'case_fold_c.php');
+            $uniarray['c'] = include (Framework::getPluginPath($this->getName()) . '/utf/case_fold_c.php');
         }
         // only set full if we need to
         if ($option === 'full' && !isset($uniarray['f'])) {
-            $uniarray['f'] = include (JFUSION_PLUGIN_PATH . DIRECTORY_SEPARATOR . $this->getJname() . DIRECTORY_SEPARATOR . 'utf' . DIRECTORY_SEPARATOR . 'case_fold_f.php');
+            $uniarray['f'] = include(Framework::getPluginPath($this->getName()) . '/utf/case_fold_f.php');
         }
         // only set simple if we need to
         if ($option !== 'full' && !isset($uniarray['s'])) {
-            $uniarray['s'] = include (JFUSION_PLUGIN_PATH . DIRECTORY_SEPARATOR . $this->getJname() . DIRECTORY_SEPARATOR . 'utf' . DIRECTORY_SEPARATOR . 'case_fold_s.php');
+            $uniarray['s'] = include(Framework::getPluginPath($this->getName()) . '/utf/case_fold_s.php');
         }
         // common is always replaced
         $text = strtr($text, $uniarray['c']);
@@ -197,7 +197,7 @@ class Helper extends Plugin
 			    define('IN_PHPBB', true);
 		    }
 		    $table_prefix = $this->params->get('database_prefix');
-		    include_once($source_path . 'includes' . DIRECTORY_SEPARATOR . 'constants.php');
+		    include_once($source_path . 'includes/constants.php');
 		    //get a bbcode_uid
 		    if (empty($this->bbcode_uid)) {
 			    $query = $db->getQuery(true)

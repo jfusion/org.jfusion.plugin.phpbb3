@@ -209,6 +209,6 @@ function logout_jfusion(&$data) {
  */
 function startJoomla() {
     define('_JFUSIONAPI_INTERNAL', true);
-    require_once 'JFUSION_PATH' . DIRECTORY_SEPARATOR  . 'jfusionapi.php';
+    require_once 'JFUSION_PATH' . '/jfusionapi.php';
 	return Platform::getTypeInstance('joomla');
 }
