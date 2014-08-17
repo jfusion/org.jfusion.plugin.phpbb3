@@ -105,7 +105,6 @@ class User extends \JFusion\Plugin\User
 					    //user is inactive
 					    if (empty($result->activation)) {
 						    //user not active generate a random code
-						    jimport('joomla.user.helper');
 						    $result->activation = Framework::genRandomPassword(13);
 					    }
 				    } else {
@@ -252,7 +251,6 @@ class User extends \JFusion\Plugin\User
 						    throw new RuntimeException(Text::sprintf('UNABLE_TO_FIND_FILE', 'common.php'));
 					    }
 				    } else {
-					    jimport('joomla.user.helper');
 					    $session_key = Framework::getHash(Framework::genRandomPassword(32));
 					    //Check for admin access
 					    $query = $jdb->getQuery(true)
@@ -812,7 +810,6 @@ class User extends \JFusion\Plugin\User
 			    $user->user_full_folder = - 4;
 			    $user->user_notify_type = 0;
 			    //generate a unique id
-			    jimport('joomla.user.helper');
 			    $user->user_form_salt = Framework::genRandomPassword(13);
 
 			    //update the user colour, avatar, etc to the groups if applicable

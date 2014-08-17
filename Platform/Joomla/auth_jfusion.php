@@ -205,7 +205,7 @@ function logout_jfusion(&$data) {
 }
 
 /**
- * @return \JFusion\Api\Platform_Joomla
+ * @return \JFusion\Api\Platform\Joomla
  */
 function startJoomla() {
     define('_JFUSIONAPI_INTERNAL', true);

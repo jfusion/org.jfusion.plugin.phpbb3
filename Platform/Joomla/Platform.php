@@ -1190,7 +1190,6 @@ class Platform extends Joomla
 				//joomla variables
 				$JUser = JFactory::getUser();
 				if (\JPluginHelper::isEnabled ('system', 'remember')) {
-					jimport('joomla.utilities.utility');
 					$hash = Framework::getHash('JLOGIN_REMEMBER');
 					$joomla_persistant_cookie = $mainframe->input->cookie->get($hash, '', 'raw');
 				} else {
@@ -1637,7 +1636,6 @@ if (!defined(\'_JEXEC\') && !defined(\'ADMIN_START\') && !defined(\'IN_MOBIQUO\'
 			case 'disable':
 				if ($error == 0) {
 					//get the joomla path from the file
-					jimport('joomla.filesystem.file');
 					$file_data = file_get_contents($mod_file);
 					$search = '/(\r?\n)\/\/JFUSION REDIRECT START(.*)\/\/JFUSION REDIRECT END/si';
 					preg_match_all($search, $file_data, $matches);
@@ -1746,7 +1744,6 @@ HTML;
 
 			if ($error == 0) {
 				//get the joomla path from the file
-				jimport('joomla.filesystem.file');
 				$file_data = file_get_contents($mod_file);
 				if(preg_match_all('/define\(\'JPATH_BASE\'\,(.*)\)/', $file_data, $matches)) {
 					//compare it with our joomla path

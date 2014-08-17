@@ -270,7 +270,6 @@ class Admin extends \JFusion\Plugin\Admin
         $mod_file = $this->getPluginFile('mcp.php', $error, $reason);
         if ($error == 0) {
             //get the joomla path from the file
-            jimport('joomla.filesystem.file');
             $file_data = file_get_contents($mod_file);
             preg_match_all('/global \$action/', $file_data, $matches);
             //compare it with our joomla path
