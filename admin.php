@@ -13,11 +13,10 @@ use JFusion\Factory;
 use JFusion\Framework;
 
 use Joomla\Database\DatabaseFactory;
+use Joomla\Filesystem\File;
 use Joomla\Language\Text;
 
 use Psr\Log\LogLevel;
-
-use JFile;
 
 use \Exception;
 
@@ -316,11 +315,10 @@ HTML;
 			case 'disable':
 				if ($error == 0) {
 					//get the joomla path from the file
-					jimport('joomla.filesystem.file');
 					$file_data = file_get_contents($mod_file);
 					$search = '/global \$action\;/si';
 					$file_data = preg_replace($search, '', $file_data);
-					if (!JFile::write($mod_file, $file_data)) {
+					if (!File::write($mod_file, $file_data)) {
 						$error = 1;
 					}
 				}
@@ -330,12 +328,11 @@ HTML;
 			case 'enable':
 				if ($error == 0) {
 					//get the joomla path from the file
-					jimport('joomla.filesystem.file');
 					$file_data = file_get_contents($mod_file);
 					$search = '/\$action \= request_var/si';
 					$replace = 'global $action; $action = request_var';
 					$file_data = preg_replace($search, $replace, $file_data);
-					JFile::write($mod_file, $file_data);
+					File::write($mod_file, $file_data);
 				}
 				break;
 		}

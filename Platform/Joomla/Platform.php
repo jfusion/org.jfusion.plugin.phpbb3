@@ -15,14 +15,15 @@ use JFusion\User\Userinfo;
 use JFusion\Plugins\phpbb3\Helper;
 use JFusion\Plugin\Platform\Joomla;
 
+use Joomla\Filesystem\File;
 use Joomla\Language\Text;
+use Joomla\Registry\Registry;
 use Joomla\Uri\Uri;
 
 use Psr\Log\LogLevel;
 
 use JUri;
 use JFactory;
-use JFile;
 
 use \Exception;
 use \stdClass;
@@ -224,7 +225,7 @@ class Platform extends Joomla
 			    ->where($where)
 			    ->order('a.topic_last_post_time ' . $result_order);
 
-		    $query[LAT . '0'] = (string)$q . $limiter;
+		    $query[self::LAT . '0'] = (string)$q . $limiter;
 
 		    $q = $db->getQuery(true)
 			    ->select('a.topic_id AS threadid, a.topic_last_post_id AS postid, a.topic_last_poster_name AS name, CASE WHEN b.poster_id = 1 AND a.topic_last_poster_name != \'\' THEN a.topic_last_poster_name ELSE c.username_clean END as username, a.topic_last_poster_id AS userid, CASE WHEN a.topic_last_poster_id = 1 THEN 1 ELSE 0 END AS guest, a.topic_title AS subject, a.topic_last_post_time AS dateline, a.forum_id as forum_specific_id, a.topic_last_post_time as last_post_dateline')
@@ -234,7 +235,7 @@ class Platform extends Joomla
 			    ->where($where)
 			    ->order('a.topic_last_post_time ' . $result_order);
 
-		    $query[LAT . '1'] = (string)$q . $limiter;
+		    $query[self::LAT . '1'] = (string)$q . $limiter;
 
 		    $q = $db->getQuery(true)
 			    ->select('a.topic_id AS threadid, a.topic_first_post_id AS postid, a.topic_first_poster_name AS name, CASE WHEN a.topic_poster = 1 AND a.topic_first_poster_name != \'\' THEN a.topic_first_poster_name ELSE c.username_clean END as username, a.topic_poster AS userid, CASE WHEN a.topic_poster = 1 THEN 1 ELSE 0 END AS guest, a.topic_title AS subject, b.post_text AS body, a.topic_time AS dateline, a.forum_id as forum_specific_id, a.topic_last_post_time as last_post_dateline')
@@ -244,7 +245,7 @@ class Platform extends Joomla
 			    ->where($where)
 			    ->order('a.topic_time ' . $result_order);
 
-		    $query[LCT] = (string)$q . $limiter;
+		    $query[self::LCT] = (string)$q . $limiter;
 
 		    $q = $db->getQuery(true)
 			    ->select('b.topic_id AS threadid, b.post_id AS postid, CASE WHEN b.poster_id = 1 AND b.post_username != \'\' THEN b.post_username ELSE c.username END AS name, CASE WHEN b.poster_id = 1 AND b.post_username != \'\' THEN b.post_username ELSE c.username_clean END as username, b.poster_id AS userid, CASE WHEN b.poster_id = 1 THEN 1 ELSE 0 END AS guest, b.post_subject AS subject, b.post_text AS body, b.post_time AS dateline, b.post_time as last_post_dateline, b.forum_id as forum_specific_id')
@@ -254,7 +255,7 @@ class Platform extends Joomla
 			    ->where($where)
 			    ->order('b.post_time ' . $result_order);
 
-		    $query[LCP] = (string)$q . $limiter;
+		    $query[self::LCP] = (string)$q . $limiter;
 	    } catch (Exception $e) {
 		    Framework::raise(LogLevel::ERROR, $e, $this->getJname());
 	    }
@@ -1643,7 +1644,7 @@ if (!defined(\'_JEXEC\') && !defined(\'ADMIN_START\') && !defined(\'IN_MOBIQUO\'
 					//remove any old code
 					if (!empty($matches[1][0])) {
 						$file_data = preg_replace($search, '', $file_data);
-						if (!JFile::write($mod_file, $file_data)) {
+						if (!File::write($mod_file, $file_data)) {
 							$error = 1;
 						}
 					}
@@ -1664,14 +1665,13 @@ if (!defined(\'_JEXEC\') && !defined(\'ADMIN_START\') && !defined(\'IN_MOBIQUO\'
 					Framework::raise(LogLevel::WARNING, Text::_('MISSING') . ' ItemID ' . Text::_('MUST BE') . ' ' . $this->getJname(), $this->getJname());
 				} else if ($error == 0) {
 					//get the joomla path from the file
-					jimport('joomla.filesystem.file');
 					$file_data = file_get_contents($mod_file);
 					$redirect_code = $this->generateRedirectCode($joomla_url, $joomla_itemid);
 					$search = '/\<\?php/si';
 					$replace = '<?php' . $redirect_code;
 
 					$file_data = preg_replace($search, $replace, $file_data);
-					JFile::write($mod_file, $file_data);
+					File::write($mod_file, $file_data);
 				}
 				break;
 		}
@@ -1692,7 +1692,6 @@ if (!defined(\'_JEXEC\') && !defined(\'ADMIN_START\') && !defined(\'IN_MOBIQUO\'
 		$mod_file = $this->getPluginFile('common.php', $error, $reason);
 		if ($error == 0) {
 			//get the joomla path from the file
-			jimport('joomla.filesystem.file');
 			$file_data = file_get_contents($mod_file);
 			preg_match_all('/\/\/JFUSION REDIRECT START(.*)\/\/JFUSION REDIRECT END/ms', $file_data, $matches);
 			//compare it with our joomla path
@@ -1807,19 +1806,17 @@ HTML;
 
 		//see if the auth mod file exists
 		if (!file_exists($auth_file)) {
-			jimport('joomla.filesystem.file');
 			$copy_file = __DIR__ . '/auth_jfusion.php';
-			JFile::copy($copy_file, $auth_file);
+			File::copy($copy_file, $auth_file);
 		}
 		if (file_exists($auth_file)) {
 			//get the joomla path from the file
-			jimport('joomla.filesystem.file');
 			$file_data = file_get_contents($auth_file);
 			//compare it with our joomla path
 			if (preg_match_all('/JFUSION_PATH/', $file_data, $matches)) {
 				$file_data = preg_replace('/JFUSION_JNAME/', $this->getJname(), $file_data);
 				$file_data = preg_replace('/JFUSION_PATH/', JPATH_SITE . '/components/com_jfusion', $file_data);
-				JFile::write($auth_file, $file_data);
+				File::write($auth_file, $file_data);
 			}
 
 			//only update the database if the file now exists
@@ -1900,8 +1897,7 @@ HTML;
 			}
 
 			if (file_exists($auth_file)) {
-				jimport('joomla.filesystem.file');
-				if (!JFile::delete($auth_file)) {
+				if (!File::delete($auth_file)) {
 					throw new RuntimeException('Cant delete file: ' . $auth_file);
 				}
 			}
@@ -1949,8 +1945,7 @@ HTML;
 		$source_path = $this->params->get('source_path');
 		$cache = $source_path . 'cache/data_global.php';
 		if (file_exists($cache)) {
-			jimport('joomla.filesystem.file');
-			return JFile::delete($cache);
+			return File::delete($cache);
 		}
 		return true;
 	}

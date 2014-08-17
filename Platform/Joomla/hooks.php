@@ -12,6 +12,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU/GPL
  * @link       http://www.jfusion.org
  */
+use Joomla\Filter\InputFilter;
+use Joomla\Uri\Uri;
 
 /**
  * Function that registers the JFusion phpBB3 hooks
@@ -154,7 +156,7 @@ class JFusionHook {
         }
         //unset Joomla vars
         unset($get_vars['option'], $get_vars['Itemid'], $get_vars['jFusion_Route'], $get_vars['jfile']);
-        $safeHtmlFilter = JFilterInput::getInstance(array(), array(), 1, 1);
+        $safeHtmlFilter = new InputFilter(array(), array(), 1, 1);
         $query_array = array();
         foreach ($get_vars as $key => $value) {
             $query_array[] = $safeHtmlFilter->clean($key, gettype($key)) . '=' . $safeHtmlFilter->clean($value, gettype($value));
@@ -173,7 +175,7 @@ class JFusionHook {
         if (substr($baseURL, -1) != '/') {
             //non-SEF mode
             global $source_url;
-            $uri = new JUri($source_url);
+            $uri = new Uri($source_url);
             $path = $uri->getPath();
             if (substr($path, -1) != '/') {
                 $path.= '/';
@@ -183,11 +185,11 @@ class JFusionHook {
             $user->host = $uri->getHost();
         } else {
             //SEF mode
-            $uri = new JUri($baseURL);
+            $uri = new Uri($baseURL);
             $path = $uri->getPath();
             $user->page['script_path'] = $path;
             $user->page['root_script_path'] = $path;
-            $uri = new JUri(JUri::base());
+            $uri = new Uri(JUri::base());
             $user->host = $uri->getHost();
         }
     }
