@@ -1,4 +1,4 @@
-<?php namespace jfusion\plugins\phpbb3\Platform\Joomla;
+<?php namespace JFusion\Plugins\phpbb3\Platform\Joomla;
 /**
  * @category   Plugins
  * @package    JFusion\Plugins
