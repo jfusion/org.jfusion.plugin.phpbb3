@@ -22,7 +22,7 @@
     },
     "autoload": {
         "psr-4": {
-            "JFusion\\Plugins\\phpbb3\\": "."
+            "JFusion\\Plugins\\phpbb3\\": "src/"
         }
     }
 }
