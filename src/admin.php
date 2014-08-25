@@ -9,6 +9,7 @@
  * @link       http://www.jfusion.org
  */
 
+use JFusion\Application\Application;
 use JFusion\Factory;
 use JFusion\Framework;
 
@@ -381,7 +382,7 @@ HTML;
 	{
 		$jname = $this->getJname();
 
-		Factory::getApplication()->loadScriptLanguage(array('MAIN_USERGROUP', 'MEMBERGROUPS'));
+		Application::getInstance()->loadScriptLanguage(array('MAIN_USERGROUP', 'MEMBERGROUPS'));
 
 		$js = <<<JS
 		JFusion.renderPlugin['{$jname}'] = function(index, plugin, pair) {

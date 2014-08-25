@@ -9,6 +9,7 @@
  * @link       http://www.jfusion.org
  */
 
+use JFusion\Application\Application;
 use JFusion\Factory;
 use JFusion\Framework;
 use JFusion\User\Userinfo;
@@ -61,7 +62,7 @@ class User extends \JFusion\Plugin\User
 			    ->select('a.user_id as userid, a.username as name, a.username_clean as username, a.user_email as email, a.user_password as password, null as password_salt, a.user_actkey as activation, a.user_inactive_reason as reason, a.user_lastvisit as lastvisit, a.group_id, b.group_name, a.user_type, a.user_avatar, a.user_avatar_type')
 			    ->from('#__users as a')
 		        ->join('LEFT OUTER', '#__groups as b ON a.group_id = b.group_id')
-		        ->where($identifier_type . ' = ' . $db->quote($identifier));
+		        ->where($db->quoteName($identifier_type) . ' = ' . $db->quote($identifier));
 
 		    $db->setQuery($query);
 		    $result = $db->loadObject();
@@ -287,7 +288,7 @@ class User extends \JFusion\Plugin\User
 						    $create_persistant_cookie = false;
 						    if (!empty($phpbb_allow_autologin)) {
 							    //check for a valid persistent cookie
-							    $persistant_cookie = ($phpbb_allow_autologin) ? Factory::getApplication()->input->cookie->get($phpbb_cookie_name . '_k', '') : '';
+							    $persistant_cookie = ($phpbb_allow_autologin) ? Application::getInstance()->input->cookie->get($phpbb_cookie_name . '_k', '') : '';
 							    if (!empty($persistant_cookie)) {
 								    $query = $jdb->getQuery(true)
 									    ->select('user_id')
@@ -474,7 +475,7 @@ class User extends \JFusion\Plugin\User
 			$query = $db->getQuery(true)
 				->select('group_colour, group_rank, group_avatar, group_avatar_type, group_avatar_width, group_avatar_height')
 				->from('#__groups')
-				->where('group_id = ' . $user->group_id);
+				->where('group_id = ' . $db->quote($user->group_id));
 
 			$db->setQuery($query);
 			$group_attribs = $db->loadAssoc();
@@ -816,7 +817,7 @@ class User extends \JFusion\Plugin\User
 			    $query = $db->getQuery(true)
 				    ->select('group_colour, group_rank, group_avatar, group_avatar_type, group_avatar_width, group_avatar_height')
 				    ->from('#__groups')
-				    ->where('group_id = ' . $usergroup->defaultgroup);
+				    ->where('group_id = ' . $db->quote($usergroup->defaultgroup));
 
 			    $db->setQuery($query);
 			    $group_attribs = $db->loadAssoc();
@@ -939,8 +940,8 @@ class User extends \JFusion\Plugin\User
 			    $query = $db->getQuery(true)
 				    ->select('DISTINCT topic_id')
 				    ->from('#__posts')
-				    ->where('topic_id IN (' . implode(', ', $report_topics) . ')')
-				    ->where('post_id IN (' . implode(', ', $report_posts) . ')')
+				    ->where('topic_id IN (' . $db->quote(implode(', ', $report_topics)) . ')')
+				    ->where('post_id IN (' . $db->quote(implode(', ', $report_posts)) . ')')
 				    ->where('post_reported = 1');
 
 			    $db->setQuery($query);
@@ -964,7 +965,7 @@ class User extends \JFusion\Plugin\User
 			    $query = $db->getQuery(true)
 				    ->update('#__posts')
 				    ->set('post_reported = 0')
-				    ->where('post_id IN (' . implode(', ', $report_posts) . ')');
+				    ->where('post_id IN (' . $db->quote(implode(', ', $report_posts)) . ')');
 
 			    $db->setQuery($query);
 			    $db->execute();
@@ -977,7 +978,7 @@ class User extends \JFusion\Plugin\User
 				    $query = $db->getQuery(true)
 					    ->update('#__topics')
 					    ->set('topic_reported = 0')
-					    ->where('topic_id IN (' . implode(', ', $report_topics) . ')');
+					    ->where('topic_id IN (' . $db->quote(implode(', ', $report_topics)) . ')');
 
 				    $db->setQuery($query);
 				    $db->execute();
@@ -1006,7 +1007,7 @@ class User extends \JFusion\Plugin\User
 			    ->set('forum_last_poster_id = 1')
 			    ->set('forum_last_poster_name = ' . $db->quote($post_username))
 			    ->set('forum_last_poster_colour = ' . $db->quote(''))
-			    ->where('forum_last_poster_id = ' . $userinfo->userid);
+			    ->where('forum_last_poster_id = ' . (int)$userinfo->userid);
 
 		    $db->setQuery($query);
 		    $db->execute();
@@ -1019,7 +1020,7 @@ class User extends \JFusion\Plugin\User
 			    ->update('#__posts')
 			    ->set('poster_id = 1')
 			    ->set('post_username = ' . $db->quote($post_username))
-			    ->where('poster_id = ' . $userinfo->userid);
+			    ->where('poster_id = ' . (int)$userinfo->userid);
 
 		    $db->setQuery($query);
 		    $db->execute();
@@ -1031,7 +1032,7 @@ class User extends \JFusion\Plugin\User
 		    $query = $db->getQuery(true)
 			    ->update('#__posts')
 			    ->set('post_edit_user = 1')
-			    ->where('post_edit_user = ' . $userinfo->userid);
+			    ->where('post_edit_user = ' . (int)$userinfo->userid);
 
 		    $db->setQuery($query);
 		    $db->execute();
@@ -1045,7 +1046,7 @@ class User extends \JFusion\Plugin\User
 			    ->set('topic_poster = 1')
 			    ->set('topic_first_poster_name = ' . $db->quote($post_username))
 			    ->set('topic_first_poster_colour = ' . $db->quote(''))
-			    ->where('topic_poster = ' . $userinfo->userid);
+			    ->where('topic_poster = ' . (int)$userinfo->userid);
 
 		    $db->setQuery($query);
 		    $db->execute();
@@ -1059,7 +1060,7 @@ class User extends \JFusion\Plugin\User
 			    ->set('topic_last_poster_id = 1')
 			    ->set('topic_last_poster_name = ' . $db->quote($post_username))
 			    ->set('topic_last_poster_colour = ' . $db->quote(''))
-			    ->where('topic_last_poster_id = ' . $userinfo->userid);
+			    ->where('topic_last_poster_id = ' . (int)$userinfo->userid);
 
 		    $db->setQuery($query);
 		    $db->execute();
@@ -1071,7 +1072,7 @@ class User extends \JFusion\Plugin\User
 	    $query = $db->getQuery(true)
 		    ->select('user_posts')
 		    ->from('#__users')
-		    ->where('user_id = ' . $userinfo->userid);
+		    ->where('user_id = ' . (int)$userinfo->userid);
 
 	    $db->setQuery($query);
 	    $user_posts = $db->loadResult();
@@ -1080,7 +1081,7 @@ class User extends \JFusion\Plugin\User
 		    try {
 			    $query = $db->getQuery(true)
 				    ->update('#__users')
-				    ->set('user_posts = user_posts + ' . $user_posts)
+				    ->set('user_posts = user_posts + ' . $db->quote($user_posts))
 				    ->where('user_id = 1');
 
 			    $db->setQuery($query);
@@ -1094,7 +1095,7 @@ class User extends \JFusion\Plugin\User
 		    try {
 			    $query = $db->getQuery(true)
 				    ->delete('#__' . $table)
-				    ->where('user_id = ' . $userinfo->userid);
+				    ->where('user_id = ' . (int)$userinfo->userid);
 
 			    $db->setQuery($query);
 			    $db->execute();
@@ -1109,7 +1110,7 @@ class User extends \JFusion\Plugin\User
 		    $query = $db->getQuery(true)
 			    ->select('msg_id, user_id')
 			    ->from('#__privmsgs_to')
-			    ->where('author_id = ' . $userinfo->userid)
+			    ->where('author_id = ' . (int)$userinfo->userid)
 			    ->where('folder_id = -3');
 
 		    $db->setQuery($query);
@@ -1128,7 +1129,7 @@ class User extends \JFusion\Plugin\User
 		    try {
 			    $query = $db->getQuery(true)
 				    ->delete('#__privmsgs')
-				    ->where('msg_id (' . implode(', ', $undelivered_msg) . ')');
+				    ->where('msg_id (' . $db->quote(implode(', ', $undelivered_msg)) . ')');
 
 			    $db->setQuery($query);
 			    $db->execute();
@@ -1140,7 +1141,7 @@ class User extends \JFusion\Plugin\User
 	    try {
 		    $query = $db->getQuery(true)
 			    ->delete('#__privmsgs_to')
-			    ->where('author_id = ' . $userinfo->userid)
+			    ->where('author_id = ' . (int)$userinfo->userid)
 			    ->where('folder_id = -3');
 
 		    $db->setQuery($query);
@@ -1153,7 +1154,7 @@ class User extends \JFusion\Plugin\User
 		    // Delete all to-information
 		    $query = $db->getQuery(true)
 			    ->delete('#__privmsgs_to')
-			    ->where('user_id = ' . $userinfo->userid);
+			    ->where('user_id = ' . (int)$userinfo->userid);
 
 		    $db->setQuery($query);
 		    $db->execute();
@@ -1166,7 +1167,7 @@ class User extends \JFusion\Plugin\User
 		    $query = $db->getQuery(true)
 			    ->update('#__privmsgs_to')
 			    ->set('author_id = 1')
-			    ->where('author_id = ' . $userinfo->userid);
+			    ->where('author_id = ' . (int)$userinfo->userid);
 		    $db->setQuery($query);
 		    $db->execute();
 	    } catch (Exception $e) {
@@ -1177,7 +1178,7 @@ class User extends \JFusion\Plugin\User
 		    $query = $db->getQuery(true)
 			    ->update('#__privmsgs')
 			    ->set('author_id = 1')
-			    ->where('author_id = ' . $userinfo->userid);
+			    ->where('author_id = ' . (int)$userinfo->userid);
 		    $db->setQuery($query);
 		    $db->execute();
 	    } catch (Exception $e) {
@@ -1193,7 +1194,7 @@ class User extends \JFusion\Plugin\User
 				    ->update('#__users')
 				    ->set('user_new_privmsg = user_new_privmsg - ' . sizeof($ary))
 				    ->set('user_unread_privmsg = user_unread_privmsg - ' . sizeof($ary))
-				    ->where('user_id = '. $userid);
+				    ->where('user_id = '. (int)$userid);
 
 			    $db->setQuery($query);
 			    $db->execute();
@@ -1240,7 +1241,7 @@ class User extends \JFusion\Plugin\User
 			    //update the newest userid
 			    $query = $db->getQuery(true)
 				    ->update('#__config')
-				    ->set('config_value = ' . $newest_user->user_id)
+				    ->set('config_value = ' . (int)$newest_user->user_id)
 				    ->where('config_name = ' . $db->quote('newest_user_id'));
 
 			    $db->setQuery($query);

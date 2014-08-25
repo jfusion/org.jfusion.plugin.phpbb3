@@ -12,6 +12,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU/GPL
  * @link       http://www.jfusion.org
  */
+use JFusion\Application\Application;
 use Joomla\Filter\InputFilter;
 use Joomla\Uri\Uri;
 
@@ -137,7 +138,7 @@ class JFusionHook {
         //we need to change the $user->page array as it does not detect some POST values
         global $user;
         //set our current phpBB3 filename
-	    $mainframe = \JFusion\Factory::getApplication();
+	    $mainframe = Application::getInstance();
 
 	    $jfile = $mainframe->input->get('jfile');
         if (empty($jfile)) {

@@ -13,6 +13,7 @@
  * @link       http://www.jfusion.org
  */
 use JFusion\Api\Platform;
+use JFusion\Application\Application;
 
 /**
  * @ignore
@@ -67,7 +68,7 @@ function login_jfusion(&$username, &$password) {
 
 			if (FORCE_REDIRECT_AFTER_LOGIN) {
 				if (isset($_REQUEST['redirect']) && defined('IN_JOOMLA')) {
-					$itemid = \JFusion\Factory::getApplication()->input->getInt('Itemid');
+					$itemid = Application::getInstance()->input->getInt('Itemid');
 					$url = JFusionFunction::getPluginURL($itemid, false);
 					$redirect = str_replace('./', '', $_REQUEST['redirect']);
 					if (strpos($redirect, 'mode=login') !== false) {

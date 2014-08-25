@@ -9,6 +9,7 @@
  * @link       http://www.jfusion.org
  */
 
+use JFusion\Application\Application;
 use JFusion\Factory;
 use JFusion\Framework;
 use JFusion\User\Userinfo;
@@ -222,8 +223,8 @@ class Platform extends Joomla
 			    ->from('#__topics as a')
 			    ->innerJoin('#__posts AS b ON a.topic_first_post_id = b.post_id')
 			    ->innerJoin('#__users AS c ON b.poster_id = c.user_id')
-			    ->where($where)
-			    ->order('a.topic_last_post_time ' . $result_order);
+			    ->where($db->quote($where))
+			    ->order('a.topic_last_post_time ' . $db->quote($result_order));
 
 		    $query[self::LAT . '0'] = (string)$q . $limiter;
 
@@ -232,8 +233,8 @@ class Platform extends Joomla
 			    ->from('#__topics as a')
 			    ->innerJoin('#__posts AS b ON a.topic_last_post_id = b.post_id')
 			    ->innerJoin('#__users AS c ON b.poster_id = c.user_id')
-			    ->where($where)
-			    ->order('a.topic_last_post_time ' . $result_order);
+			    ->where($db->quote($where))
+			    ->order('a.topic_last_post_time ' . $db->quote($result_order));
 
 		    $query[self::LAT . '1'] = (string)$q . $limiter;
 
@@ -242,8 +243,8 @@ class Platform extends Joomla
 			    ->from('#__topics as a')
 			    ->innerJoin('#__posts AS b ON a.topic_first_post_id = b.post_id')
 			    ->innerJoin('#__users AS c ON b.poster_id = c.user_id')
-			    ->where($where)
-			    ->order('a.topic_time ' . $result_order);
+			    ->where($db->quote($where))
+			    ->order('a.topic_time ' . $db->quote($result_order));
 
 		    $query[self::LCT] = (string)$q . $limiter;
 
@@ -252,8 +253,8 @@ class Platform extends Joomla
 			    ->from('#__topics as a')
 			    ->innerJoin('#__posts AS b ON a.topic_id = b.topic_id')
 			    ->innerJoin('#__users AS c ON b.poster_id = c.user_id')
-			    ->where($where)
-			    ->order('b.post_time ' . $result_order);
+			    ->where($db->quote($where))
+			    ->order('b.post_time ' . $db->quote($result_order));
 
 		    $query[self::LCP] = (string)$q . $limiter;
 	    } catch (Exception $e) {
@@ -287,7 +288,7 @@ class Platform extends Joomla
 					    $query = $db->getQuery(true)
 						    ->select('topic_id, mark_time')
 						    ->from('#__topics_track')
-						    ->where('user_id = ' . $userlookup->userid);
+						    ->where('user_id = ' . (int)$userlookup->userid);
 
 					    $db->setQuery($query);
 					    $marktimes['thread'] = $db->loadObjectList('topic_id');
@@ -295,7 +296,7 @@ class Platform extends Joomla
 					    $query = $db->getQuery(true)
 						    ->select('forum_id, mark_time')
 						    ->from('#__forums_track')
-						    ->where('user_id = ' . $userlookup->userid);
+						    ->where('user_id = ' . (int)$userlookup->userid);
 
 					    $db->setQuery($query);
 					    $marktimes['forum'] = $db->loadObjectList('forum_id');
@@ -303,7 +304,7 @@ class Platform extends Joomla
 					    $query = $db->getQuery(true)
 						    ->select('user_lastmark')
 						    ->from('#__users')
-						    ->where('user_id = ' . $userlookup->userid);
+						    ->where('user_id = ' . (int)$userlookup->userid);
 
 					    $db->setQuery($query);
 					    $marktimes['user'] = $db->loadResult();
@@ -434,7 +435,7 @@ class Platform extends Joomla
 						    $query = $db->getQuery(true)
 							    ->select('group_id')
 							    ->from('#__user_group')
-							    ->where('user_id = ' . $userid);
+							    ->where('user_id = ' . (int)$userid);
 
 						    $db->setQuery($query);
 						    $groupids = $db->loadColumn();
@@ -442,7 +443,7 @@ class Platform extends Joomla
 						    $query = $db->getQuery(true)
 							    ->select('user_type')
 							    ->from('#__users')
-							    ->where('user_id = ' . $userid);
+							    ->where('user_id = ' . (int)$userid);
 
 						    $db->setQuery($query);
 						    $usertype = (int) $db->loadResult();
@@ -505,9 +506,9 @@ class Platform extends Joomla
 				    $query = $db->getQuery(true)
 					    ->select('*')
 					    ->from('#__acl_groups')
-					    ->where('group_id IN (' . implode(', ', $groupids) . ')')
-					    ->where('auth_option_id IN (' . implode(', ', $auth_option_ids) . ')')
-					    ->where('forum_id IN (' . implode(', ', $forumids) . ')');
+					    ->where('group_id IN (' . $db->quote(implode(', ', $groupids)) . ')')
+					    ->where('auth_option_id IN (' . $db->quote(implode(', ', $auth_option_ids)) . ')')
+					    ->where('forum_id IN (' . $db->quote(implode(', ', $forumids)) . ')');
 
 				    $db->setQuery($query);
 				    $results = $db->loadObjectList();
@@ -525,8 +526,8 @@ class Platform extends Joomla
 								    $query = $db->getQuery(true)
 									    ->select('auth_option_id, auth_setting')
 									    ->from('#__acl_roles_data')
-								        ->where('role_id = ' . $r->auth_role_id)
-									    ->where('auth_option_id IN (\'' . $global_id . '\', \'' . $read_id . '\')');
+								        ->where('role_id = ' . (int)$r->auth_role_id)
+									    ->where('auth_option_id IN (' . $db->quote($global_id) . ', ' . $db->quote($read_id) . ')');
 
 								    $db->setQuery($query);
 								    $role_permissions = $db->loadObjectList('auth_option_id');
@@ -544,9 +545,9 @@ class Platform extends Joomla
 				    $query = $db->getQuery(true)
 					    ->select('*')
 					    ->from('#__acl_users')
-					    ->where('user_id = ' . $userid)
-					    ->where('auth_option_id IN (' . implode(', ', $auth_option_ids) . ')')
-					    ->where('forum_id IN (' . implode(', ', $forumids) . ')');
+					    ->where('user_id = ' . (int)$userid)
+					    ->where('auth_option_id IN (' . $db->quote(implode(', ', $auth_option_ids)) . ')')
+					    ->where('forum_id IN (' . $db->quote(implode(', ', $forumids)) . ')');
 
 				    $db->setQuery($query);
 				    $results = $db->loadObjectList();
@@ -565,8 +566,8 @@ class Platform extends Joomla
 								    $query = $db->getQuery(true)
 									    ->select('auth_option_id, auth_setting')
 									    ->from('#__acl_roles_data')
-									    ->where('role_id = ' . $r->auth_role_id)
-									    ->where('auth_option_id IN (\'' . $global_id . '\', \'' . $read_id . '\')');
+									    ->where('role_id = ' . (int)$r->auth_role_id)
+									    ->where('auth_option_id IN (' . $db->quote($global_id) . ', ' . $db->quote($read_id) . ')');
 
 								    $db->setQuery($query);
 								    $role_permissions = $db->loadObjectList('auth_option_id');
@@ -651,7 +652,7 @@ class Platform extends Joomla
 		    $query = $db->getQuery(true)
 			    ->select('topic_id AS threadid, forum_id AS forumid, topic_first_post_id AS postid')
 			    ->from('#__topics')
-			    ->where('topic_id = ' . $threadid);
+			    ->where('topic_id = ' . (int)$threadid);
 
 		    $db->setQuery($query);
 		    $result = $db->loadObject();
@@ -685,7 +686,7 @@ class Platform extends Joomla
 		$query = $db->getQuery(true)
 			->select('username, username_clean, user_colour, user_permissions')
 			->from('#__users')
-			->where('user_id = ' . $userid);
+			->where('user_id = ' . (int)$userid);
 
 		$db->setQuery($query);
 		$phpbbUser = $db->loadObject();
@@ -759,7 +760,7 @@ class Platform extends Joomla
 		$query = $db->getQuery(true)
 			->select('forum_last_post_time, forum_topics, forum_topics_real, forum_posts')
 			->from('#__forums')
-			->where('forum_id = ' . $forumid);
+			->where('forum_id = ' . (int)$forumid);
 
 		$db->setQuery($query);
 		$num = $db->loadObject();
@@ -793,7 +794,7 @@ class Platform extends Joomla
 		$query = $db->getQuery(true)
 			->update('#__users')
 			->set('user_posts = user_posts + 1')
-			->where('user_id  = ' . $userid);
+			->where('user_id  = ' . (int)$userid);
 
 		$db->setQuery($query);
 		$db->execute();
@@ -855,7 +856,7 @@ class Platform extends Joomla
 		$query = $db->getQuery(true)
 			->select('post_edit_count')
 			->from('#__posts')
-			->where('post_id = ' . $postid);
+			->where('post_id = ' . (int)$postid);
 
 		$db->setQuery($query);
 		$count = $db->loadResult();
@@ -943,7 +944,7 @@ class Platform extends Joomla
 			$query = $db->getQuery(true)
 				->select('topic_title, topic_replies, topic_replies_real')
 				->from('#__topics')
-				->where('topic_id = ' . $ids->threadid);
+				->where('topic_id = ' . (int)$ids->threadid);
 
 			$db->setQuery($query);
 			$topic = $db->loadObject();
@@ -952,7 +953,7 @@ class Platform extends Joomla
 			$query = $db->getQuery(true)
 				->select('username, user_colour, user_permissions')
 				->from('#__users')
-				->where('user_id = ' . $userid);
+				->where('user_id = ' . (int)$userid);
 
 			$db->setQuery($query);
 			$phpbbUser = $db->loadObject();
@@ -1010,7 +1011,7 @@ class Platform extends Joomla
 				$query = $db->getQuery(true)
 					->select('forum_posts')
 					->from('#__forums')
-					->where('forum_id = ' . $ids->forumid);
+					->where('forum_id = ' . (int)$ids->forumid);
 
 				$db->setQuery($query);
 				$num = $db->loadObject();
@@ -1028,7 +1029,7 @@ class Platform extends Joomla
 				$query = $db->getQuery(true)
 					->select('forum_topics, forum_topics_real, forum_posts')
 					->from('#__forums')
-					->where('forum_id = ' . $ids->forumid);
+					->where('forum_id = ' . (int)$ids->forumid);
 
 				$db->setQuery($query);
 				$num = $db->loadObject();
@@ -1041,7 +1042,7 @@ class Platform extends Joomla
 				$query = $db->getQuery(true)
 					->update('#__users')
 					->set('user_posts = user_posts + 1')
-					->where('user_id = ' . $userid);
+					->where('user_id = ' . (int)$userid);
 
 				$db->setQuery($query);
 				$db->execute();
@@ -1119,10 +1120,10 @@ class Platform extends Joomla
 				->select('p.post_id , CASE WHEN p.poster_id = 1 THEN 1 ELSE 0 END AS guest, CASE WHEN p.poster_id = 1 AND p.post_username != \'\' THEN p.post_username ELSE u.username END AS name, CASE WHEN p.poster_id = 1 AND p.post_username != \'\' THEN p.post_username ELSE u.username_clean END AS username, u.user_id, p.post_subject, p.post_time, p.post_text, p.topic_id')
 				->from('#__posts as p')
 				->innerJoin('#__users as u ON p.poster_id = u.user_id')
-				->where('p.topic_id = ' . $existingthread->threadid)
-				->where('p.post_id != ' . $existingthread->postid)
+				->where('p.topic_id = ' . (int)$existingthread->threadid)
+				->where('p.post_id != ' . (int)$existingthread->postid)
 				->where('p.post_approved = 1')
-				->order('p.post_time ' . $sort);
+				->order('p.post_time ' . $db->quote($sort));
 
 			$db->setQuery($query, $start, $limit);
 
@@ -1147,9 +1148,9 @@ class Platform extends Joomla
 			$query = $db->getQuery(true)
 				->select('count(*)')
 				->from('#__posts')
-				->where('topic_id = ' . $existingthread->threadid)
+				->where('topic_id = ' . (int)$existingthread->threadid)
 				->where('post_approved = 1')
-				->where('post_id != ' . $existingthread->postid);
+				->where('post_id != ' . (int)$existingthread->postid);
 
 			$db->setQuery($query);
 			$result = $db->loadResult();
@@ -1182,7 +1183,7 @@ class Platform extends Joomla
 
 				//phpbb variables
 				$phpbb_cookie_prefix = $this->params->get('cookie_prefix');
-				$mainframe = Factory::getApplication();
+				$mainframe = Application::getInstance();
 				$userid_cookie_value = $mainframe->input->cookie->get($phpbb_cookie_prefix . '_u', '');
 				$sid_cookie_value = $mainframe->input->cookie->get($phpbb_cookie_prefix . '_sid', '');
 				$phpbb_allow_autologin = $this->params->get('allow_autologin');
@@ -1227,7 +1228,7 @@ class Platform extends Joomla
 								$query = $db->getQuery(true)
 									->select('username_clean AS username, user_email as email')
 									->from('#__users')
-									->where('user_id = ' . $userlookup->userid);
+									->where('user_id = ' . (int)$userlookup->userid);
 
 								$db->setQuery($query);
 								$user_identifiers = $db->loadObject();
@@ -1352,7 +1353,7 @@ class Platform extends Joomla
 								$query = $jdb->getQuery(true)
 									->select('username, email')
 									->from('#__users')
-									->where('id = ' . $userlookup->id);
+									->where('id = ' . (int)$userlookup->userid);
 
 								$jdb->setQuery($query);
 								$user_identifiers = $jdb->loadObject();
@@ -1405,13 +1406,13 @@ class Platform extends Joomla
 			->innerJoin('#__sessions AS s ON u.user_id = s.session_user_id')
 			->where('s.session_viewonline = 1')
 			->where('s.session_user_id != 1')
-			->where('s.session_time > ' . $active);
+			->where('s.session_time > ' . (int)$active);
 
 		if (!empty($usergroups)) {
 			$usergroups = implode(',', $usergroups);
 
 			$query->innerJoin('#___user_group AS g ON u.user_id = g.user_id')
-				->where('g.group_id IN (' . $usergroups . ')');
+				->where('g.group_id IN (' . $db->quote($usergroups) . ')');
 		}
 
 		$query = (string)$query;
@@ -1432,7 +1433,7 @@ class Platform extends Joomla
 				->select('COUNT(DISTINCT(session_ip))')
 				->from('#__sessions')
 				->where('session_user_id = 1')
-				->where('session_time > ' . $active);
+				->where('session_time > ' . (int)$active);
 
 			$db->setQuery($query);
 			$result = $db->loadResult();
@@ -1458,7 +1459,7 @@ class Platform extends Joomla
 				->from('#__sessions')
 				->where('session_viewonline = 1')
 				->where('session_user_id != 1')
-				->where('session_time > ' . $active);
+				->where('session_time > ' . (int)$active);
 
 			$db->setQuery($query);
 			$result = $db->loadResult();
@@ -2060,7 +2061,7 @@ HTML;
 	{
 		$session = JFactory::getSession();
 		//detect if phpbb3 is already loaded for dual login
-		$mainframe = Factory::getApplication();
+		$mainframe = Application::getInstance();
 		if (defined('IN_PHPBB')) {
 			//backup any post get vars
 			$backup = array();
@@ -2211,7 +2212,7 @@ HTML;
 			$replace_body[] = 'popup(\'' . $data->integratedURL . '$1\'';
 			$callback_function[] = '';
 			//fix for mcp links
-			$mainframe = Factory::getApplication();
+			$mainframe = Application::getInstance();
 			$jfile = $mainframe->input->get('jfile');
 			if ($jfile == 'mcp.php') {
 				$topicid = $mainframe->input->getInt('t');
@@ -2343,7 +2344,7 @@ HTML;
 			}
 			if (!empty($profile_mod_id) && strstr($q, 'i=' . $profile_mod_id)) {
 				$url = 'ucp.php?i=profile&mode=signature';
-				$url = JFusionFunction::routeURL($url, Factory::getApplication()->input->getInt('Itemid'), $this->getJname());
+				$url = JFusionFunction::routeURL($url, Application::getInstance()->input->getInt('Itemid'), $this->getJname());
 				return 'href="' . $url . '"';
 			}
 		}
@@ -2363,7 +2364,7 @@ HTML;
 			$sefmode = $this->params->get('sefmode');
 			if ($sefmode == 1) {
 				//extensive SEF parsing was selected
-				$url = JFusionFunction::routeURL($q, Factory::getApplication()->input->getInt('Itemid'));
+				$url = JFusionFunction::routeURL($q, Application::getInstance()->input->getInt('Itemid'));
 			} else {
 				//simple SEF mode, we can just combine both variables
 				$url = $baseURL . $q;
@@ -2403,7 +2404,7 @@ HTML;
 				if (!empty($query)) {
 					$redirectURL.= '?' . $query;
 				}
-				$redirectURL = JFusionFunction::routeURL($redirectURL, Factory::getApplication()->input->getInt('Itemid'));
+				$redirectURL = JFusionFunction::routeURL($redirectURL, Application::getInstance()->input->getInt('Itemid'));
 			} else {
 				//simple SEF mode, we can just combine both variables
 				$redirectURL = $baseURL . $jfile;
@@ -2430,7 +2431,7 @@ HTML;
 		$baseURL = $this->data->baseURL;
 
 		$url = htmlspecialchars_decode($url);
-		$mainframe = Factory::getApplication();
+		$mainframe = Application::getInstance();
 		$Itemid = $mainframe->input->getInt('Itemid');
 		//strip any leading dots
 		if (substr($url, 0, 2) == './') {
@@ -2538,7 +2539,7 @@ HTML;
 			$db = Factory::getDatabase($this->getJname());
 			$pathway = array();
 
-			$mainframe = Factory::getApplication();
+			$mainframe = Application::getInstance();
 
 			$forum_id = $mainframe->input->getInt('f');
 			if (!empty($forum_id)) {
@@ -2558,8 +2559,8 @@ HTML;
 					$query = $db->getQuery(true)
 						->select('forum_id, forum_name')
 						->from('#__forums')
-						->where('left_id < ' . $forum_info->left_id)
-						->where('right_id > ' . $forum_info->right_id)
+						->where('left_id < ' . (int)$forum_info->left_id)
+						->where('right_id > ' . (int)$forum_info->right_id)
 						->order('left_id ASC');
 
 					$db->setQuery($query);
