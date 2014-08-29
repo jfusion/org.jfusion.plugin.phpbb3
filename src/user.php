@@ -106,7 +106,7 @@ class User extends \JFusion\Plugin\User
 					    //user is inactive
 					    if (empty($result->activation)) {
 						    //user not active generate a random code
-						    $result->activation = Framework::genRandomPassword(13);
+						    $result->activation = $this->genRandomPassword(13);
 					    }
 				    } else {
 					    //active user, make sure no activation code is set
@@ -252,7 +252,7 @@ class User extends \JFusion\Plugin\User
 						    throw new RuntimeException(Text::sprintf('UNABLE_TO_FIND_FILE', 'common.php'));
 					    }
 				    } else {
-					    $session_key = Framework::getHash(Framework::genRandomPassword(32));
+					    $session_key = Framework::getHash($this->genRandomPassword(32));
 					    //Check for admin access
 					    $query = $jdb->getQuery(true)
 						    ->select('b.group_name')
@@ -811,7 +811,7 @@ class User extends \JFusion\Plugin\User
 			    $user->user_full_folder = - 4;
 			    $user->user_notify_type = 0;
 			    //generate a unique id
-			    $user->user_form_salt = Framework::genRandomPassword(13);
+			    $user->user_form_salt = $this->genRandomPassword(13);
 
 			    //update the user colour, avatar, etc to the groups if applicable
 			    $query = $db->getQuery(true)
