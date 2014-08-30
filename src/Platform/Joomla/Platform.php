@@ -2058,7 +2058,7 @@ HTML;
 	{
 		$session = JFactory::getSession();
 		//detect if phpbb3 is already loaded for dual login
-		$mainframe = Application::getInstance();
+		$mainframe = JFactory::getApplication();
 		if (defined('IN_PHPBB')) {
 			//backup any post get vars
 			$backup = array();
