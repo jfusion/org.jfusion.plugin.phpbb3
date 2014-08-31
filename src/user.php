@@ -187,190 +187,183 @@ class User extends \JFusion\Plugin\User
         return $status;
     }
 
-    /**
-     * @param Userinfo $userinfo
-     * @param array $options
-     * @return array
-     */
+	/**
+	 * @param Userinfo $userinfo
+	 * @param array    $options
+	 *
+	 * @throws \RuntimeException
+	 * @return array
+	 */
     function createSession(Userinfo $userinfo, $options) {
         $status = array('error' => array(), 'debug' => array());
-	    try {
-		    //do not create sessions for blocked users
-		    if (!empty($userinfo->block) || !empty($userinfo->activation)) {
-			    throw new RuntimeException(Text::_('FUSION_BLOCKED_USER'));
-		    } else {
-			    $jdb = Factory::getDatabase($this->getJname());
-			    $userid = $userinfo->userid;
-			    if ($userid && !empty($userid) && ($userid > 0)) {
-				    //check if we need to let phpbb3 handle the login
-				    $login_type = $this->params->get('login_type');
-				    if ($login_type != 1 && !function_exists('deregister_globals')) {
-					    //let phpbb3 handle login
-					    $source_path = $this->params->get('source_path');
-					    if (file_exists($source_path . 'common.php')) {
-						    //set the current directory to phpBB3
-						    chdir($source_path);
-						    /* set scope for variables required later */
-						    global $phpbb_root_path, $phpEx, $db, $config, $user, $auth, $cache, $template, $phpbb_hook, $module, $mode;
-						    if (!defined('UTF8_STRLEN')) {
-							    define('UTF8_STRLEN', true);
-						    }
-						    if (!defined('UTF8_CORE')) {
-							    define('UTF8_CORE', true);
-						    }
-						    if (!defined('UTF8_CASE')) {
-							    define('UTF8_CASE', true);
-						    }
-						    if (!defined('IN_PHPBB')) {
-							    define('IN_PHPBB', true);
-						    }
+	    $jdb = Factory::getDatabase($this->getJname());
+	    $userid = $userinfo->userid;
+	    if ($userid && !empty($userid) && ($userid > 0)) {
+		    //check if we need to let phpbb3 handle the login
+		    $login_type = $this->params->get('login_type');
+		    if ($login_type != 1 && !function_exists('deregister_globals')) {
+			    //let phpbb3 handle login
+			    $source_path = $this->params->get('source_path');
+			    if (file_exists($source_path . 'common.php')) {
+				    //set the current directory to phpBB3
+				    chdir($source_path);
+				    /* set scope for variables required later */
+				    global $phpbb_root_path, $phpEx, $db, $config, $user, $auth, $cache, $template, $phpbb_hook, $module, $mode;
+				    if (!defined('UTF8_STRLEN')) {
+					    define('UTF8_STRLEN', true);
+				    }
+				    if (!defined('UTF8_CORE')) {
+					    define('UTF8_CORE', true);
+				    }
+				    if (!defined('UTF8_CASE')) {
+					    define('UTF8_CASE', true);
+				    }
+				    if (!defined('IN_PHPBB')) {
+					    define('IN_PHPBB', true);
+				    }
 
-						    $phpbb_root_path = $source_path;
-						    $phpEx = 'php';
+				    $phpbb_root_path = $source_path;
+				    $phpEx = 'php';
 
-						    include_once $source_path . 'common.php';
+				    include_once $source_path . 'common.php';
 
-						    //get phpbb3 session object
-						    $user->session_begin();
-						    $auth->acl($user->data);
+				    //get phpbb3 session object
+				    $user->session_begin();
+				    $auth->acl($user->data);
 
-						    //perform the login
-						    if ($options['remember']) {
-							    $remember = true;
-						    } else {
-							    $remember = false;
-						    }
-						    $result = $auth->login($userinfo->username, $userinfo->password_clear, $remember, 1, 0);
-						    if ($result['status'] == LOGIN_SUCCESS) {
-							    $status[LogLevel::DEBUG][] = Text::_('CREATED') . ' ' . Text::_('PHPBB') . ' ' . Text::_('SESSION');
-						    } else {
-							    $status[LogLevel::DEBUG][] = Text::_('ERROR') . ' ' . Text::_('PHPBB') . ' ' . Text::_('SESSION');
-						    }
-						    //change the current directory back to Joomla.
-						    chdir(JPATH_SITE);
-					    } else {
-						    throw new RuntimeException(Text::sprintf('UNABLE_TO_FIND_FILE', 'common.php'));
-					    }
+				    //perform the login
+				    if ($options['remember']) {
+					    $remember = true;
 				    } else {
-					    $session_key = Framework::getHash($this->genRandomPassword(32));
-					    //Check for admin access
-					    $query = $jdb->getQuery(true)
-						    ->select('b.group_name')
-						    ->from('#__user_group as a')
-					        ->innerJoin('#__groups as b ON a.group_id = b.group_id')
-						    ->where('b.group_name = ' . $jdb->quote('ADMINISTRATORS'))
-						    ->where('a.user_id = ' . (int)$userinfo->userid);
+					    $remember = false;
+				    }
+				    $result = $auth->login($userinfo->username, $userinfo->password_clear, $remember, 1, 0);
+				    if ($result['status'] == LOGIN_SUCCESS) {
+					    $status[LogLevel::DEBUG][] = Text::_('CREATED') . ' ' . Text::_('PHPBB') . ' ' . Text::_('SESSION');
+				    } else {
+					    $status[LogLevel::DEBUG][] = Text::_('ERROR') . ' ' . Text::_('PHPBB') . ' ' . Text::_('SESSION');
+				    }
+				    //change the current directory back to Joomla.
+				    chdir(JPATH_SITE);
+			    } else {
+				    throw new RuntimeException(Text::sprintf('UNABLE_TO_FIND_FILE', 'common.php'));
+			    }
+		    } else {
+			    $session_key = Framework::getHash($this->genRandomPassword(32));
+			    //Check for admin access
+			    $query = $jdb->getQuery(true)
+				    ->select('b.group_name')
+				    ->from('#__user_group as a')
+				    ->innerJoin('#__groups as b ON a.group_id = b.group_id')
+				    ->where('b.group_name = ' . $jdb->quote('ADMINISTRATORS'))
+				    ->where('a.user_id = ' . (int)$userinfo->userid);
 
-					    $jdb->setQuery($query);
-					    $usergroup = $jdb->loadResult();
-					    if ($usergroup == 'ADMINISTRATORS') {
-						    $admin_access = 1;
-					    } else {
-						    $admin_access = 0;
-					    }
-					    $phpbb_cookie_name = $this->params->get('cookie_prefix');
-					    if ($phpbb_cookie_name) {
-						    //get cookie domain from config table
-						    $phpbb_cookie_domain = $this->params->get('cookie_domain');
-						    if ($phpbb_cookie_domain == 'localhost' || $phpbb_cookie_domain == '127.0.0.1') {
-							    $phpbb_cookie_domain = '';
-						    }
-						    //get cookie path from config table
-						    $phpbb_cookie_path = $this->params->get('cookie_path');
-						    //get autologin perm
-						    $phpbb_allow_autologin = $this->params->get('allow_autologin');
-						    $jautologin = 0;
-						    //set the remember me option if set in Joomla and is allowed per config
-						    if (isset($options['remember']) && !empty($phpbb_allow_autologin)) {
-							    $jautologin = $options['remember'] ? 1 : 0;
-						    }
+			    $jdb->setQuery($query);
+			    $usergroup = $jdb->loadResult();
+			    if ($usergroup == 'ADMINISTRATORS') {
+				    $admin_access = 1;
+			    } else {
+				    $admin_access = 0;
+			    }
+			    $phpbb_cookie_name = $this->params->get('cookie_prefix');
+			    if ($phpbb_cookie_name) {
+				    //get cookie domain from config table
+				    $phpbb_cookie_domain = $this->params->get('cookie_domain');
+				    if ($phpbb_cookie_domain == 'localhost' || $phpbb_cookie_domain == '127.0.0.1') {
+					    $phpbb_cookie_domain = '';
+				    }
+				    //get cookie path from config table
+				    $phpbb_cookie_path = $this->params->get('cookie_path');
+				    //get autologin perm
+				    $phpbb_allow_autologin = $this->params->get('allow_autologin');
+				    $jautologin = 0;
+				    //set the remember me option if set in Joomla and is allowed per config
+				    if (isset($options['remember']) && !empty($phpbb_allow_autologin)) {
+					    $jautologin = $options['remember'] ? 1 : 0;
+				    }
 
-						    $create_persistant_cookie = false;
-						    if (!empty($phpbb_allow_autologin)) {
-							    //check for a valid persistent cookie
-							    $persistant_cookie = ($phpbb_allow_autologin) ? Application::getInstance()->input->cookie->get($phpbb_cookie_name . '_k', '') : '';
-							    if (!empty($persistant_cookie)) {
-								    $query = $jdb->getQuery(true)
-									    ->select('user_id')
-									    ->from('#__sessions_keys')
-									    ->where('key_id = ' . $jdb->quote(md5($persistant_cookie)));
+				    $create_persistant_cookie = false;
+				    if (!empty($phpbb_allow_autologin)) {
+					    //check for a valid persistent cookie
+					    $persistant_cookie = ($phpbb_allow_autologin) ? Application::getInstance()->input->cookie->get($phpbb_cookie_name . '_k', '') : '';
+					    if (!empty($persistant_cookie)) {
+						    $query = $jdb->getQuery(true)
+							    ->select('user_id')
+							    ->from('#__sessions_keys')
+							    ->where('key_id = ' . $jdb->quote(md5($persistant_cookie)));
 
-								    $jdb->setQuery($query);
-								    $persistant_cookie_userid = $jdb->loadResult();
-								    if ($persistant_cookie_userid == $userinfo->userid) {
-									    $status[LogLevel::DEBUG][] = Text::_('SKIPPED_CREATING_PERSISTANT_COOKIE');
-									    $create_persistant_cookie = false;
-									    //going to assume that since a persistent cookie exists, $options['remember'] was originally set
-									    //$options['remember'] does not get set if Joomla remember me plugin reinitiated the login
-									    $jautologin = 1;
-								    }
-							    } else {
-								    $create_persistant_cookie = true;
-							    }
-						    }
-
-						    if ($jautologin) {
-							    $query = $jdb->getQuery(true)
-								    ->select('config_value')
-								    ->from('#__config')
-								    ->where('config_name = ' . $jdb->quote('max_autologin_time'));
-
-							    $jdb->setQuery($query);
-							    $max_autologin_time = $jdb->loadResult();
-							    $expires = ($max_autologin_time) ? 86400 * (int) $max_autologin_time : 31536000;
-						    } else {
-							    $expires = 31536000;
-						    }
-						    $secure = $this->params->get('secure', false);
-						    $httponly = $this->params->get('httponly', true);
-						    $session_start = time();
-						    //Insert the session into sessions table
-						    $session_obj = new stdClass;
-						    $session_obj->session_id = substr($session_key, 0, 32);
-						    $session_obj->session_user_id = $userid;
-						    $session_obj->session_last_visit = $userinfo->lastvisit;
-						    $session_obj->session_start = $session_start;
-						    $session_obj->session_time = $session_start;
-						    $session_obj->session_ip = $_SERVER['REMOTE_ADDR'];
-						    $session_obj->session_browser = $_SERVER['HTTP_USER_AGENT'];
-						    $session_obj->session_page = 0;
-						    $session_obj->session_autologin = $jautologin;
-						    $session_obj->session_admin = $admin_access;
-
-						    $jdb->insertObject('#__sessions', $session_obj);
-
-						    //Set cookies
-						    $status[LogLevel::DEBUG][] = $this->addCookie($phpbb_cookie_name . '_u', $userid, $expires, $phpbb_cookie_path, $phpbb_cookie_domain, $secure, $httponly);
-						    $status[LogLevel::DEBUG][] = $this->addCookie($phpbb_cookie_name . '_sid', $session_key, $expires, $phpbb_cookie_path, $phpbb_cookie_domain, $secure, $httponly, true);
-
-						    //Force the values into the $_COOKIE variable just in case Joomla remember me plugin fired this in which the cookie will not be available until after the browser refreshes.  This will hopefully trick phpBB into thinking the cookie is present now and thus handle sessions correctly when in frameless mode
-						    $_COOKIE[$phpbb_cookie_name . '_u'] = $userid;
-						    $_COOKIE[$phpbb_cookie_name . '_sid'] = $session_key;
-
-						    // Remember me option?
-						    if ($jautologin > 0 && $create_persistant_cookie) {
-							    $key_id = substr(md5($session_key . microtime()), 4, 16);
-							    //Insert the session key into sessions_key table
-							    $session_key_ins = new stdClass;
-							    $session_key_ins->key_id = md5($key_id);
-							    $session_key_ins->user_id = $userid;
-							    $session_key_ins->last_ip = $_SERVER['REMOTE_ADDR'];
-							    $session_key_ins->last_login = $session_start;
-							    $jdb->insertObject('#__sessions_keys', $session_key_ins);
-
-							    $status[LogLevel::DEBUG][] = $this->addCookie($phpbb_cookie_name . '_k', $key_id, $expires, $phpbb_cookie_path, $phpbb_cookie_domain, $secure, $httponly, true);
-							    $_COOKIE[$phpbb_cookie_name . '_k'] = $key_id;
+						    $jdb->setQuery($query);
+						    $persistant_cookie_userid = $jdb->loadResult();
+						    if ($persistant_cookie_userid == $userinfo->userid) {
+							    $status[LogLevel::DEBUG][] = Text::_('SKIPPED_CREATING_PERSISTANT_COOKIE');
+							    $create_persistant_cookie = false;
+							    //going to assume that since a persistent cookie exists, $options['remember'] was originally set
+							    //$options['remember'] does not get set if Joomla remember me plugin reinitiated the login
+							    $jautologin = 1;
 						    }
 					    } else {
-						    throw new RuntimeException(Text::_('INVALID_COOKIENAME'));
+						    $create_persistant_cookie = true;
 					    }
 				    }
+
+				    if ($jautologin) {
+					    $query = $jdb->getQuery(true)
+						    ->select('config_value')
+						    ->from('#__config')
+						    ->where('config_name = ' . $jdb->quote('max_autologin_time'));
+
+					    $jdb->setQuery($query);
+					    $max_autologin_time = $jdb->loadResult();
+					    $expires = ($max_autologin_time) ? 86400 * (int) $max_autologin_time : 31536000;
+				    } else {
+					    $expires = 31536000;
+				    }
+				    $secure = $this->params->get('secure', false);
+				    $httponly = $this->params->get('httponly', true);
+				    $session_start = time();
+				    //Insert the session into sessions table
+				    $session_obj = new stdClass;
+				    $session_obj->session_id = substr($session_key, 0, 32);
+				    $session_obj->session_user_id = $userid;
+				    $session_obj->session_last_visit = $userinfo->lastvisit;
+				    $session_obj->session_start = $session_start;
+				    $session_obj->session_time = $session_start;
+				    $session_obj->session_ip = $_SERVER['REMOTE_ADDR'];
+				    $session_obj->session_browser = $_SERVER['HTTP_USER_AGENT'];
+				    $session_obj->session_page = 0;
+				    $session_obj->session_autologin = $jautologin;
+				    $session_obj->session_admin = $admin_access;
+
+				    $jdb->insertObject('#__sessions', $session_obj);
+
+				    //Set cookies
+				    $status[LogLevel::DEBUG][] = $this->addCookie($phpbb_cookie_name . '_u', $userid, $expires, $phpbb_cookie_path, $phpbb_cookie_domain, $secure, $httponly);
+				    $status[LogLevel::DEBUG][] = $this->addCookie($phpbb_cookie_name . '_sid', $session_key, $expires, $phpbb_cookie_path, $phpbb_cookie_domain, $secure, $httponly, true);
+
+				    //Force the values into the $_COOKIE variable just in case Joomla remember me plugin fired this in which the cookie will not be available until after the browser refreshes.  This will hopefully trick phpBB into thinking the cookie is present now and thus handle sessions correctly when in frameless mode
+				    $_COOKIE[$phpbb_cookie_name . '_u'] = $userid;
+				    $_COOKIE[$phpbb_cookie_name . '_sid'] = $session_key;
+
+				    // Remember me option?
+				    if ($jautologin > 0 && $create_persistant_cookie) {
+					    $key_id = substr(md5($session_key . microtime()), 4, 16);
+					    //Insert the session key into sessions_key table
+					    $session_key_ins = new stdClass;
+					    $session_key_ins->key_id = md5($key_id);
+					    $session_key_ins->user_id = $userid;
+					    $session_key_ins->last_ip = $_SERVER['REMOTE_ADDR'];
+					    $session_key_ins->last_login = $session_start;
+					    $jdb->insertObject('#__sessions_keys', $session_key_ins);
+
+					    $status[LogLevel::DEBUG][] = $this->addCookie($phpbb_cookie_name . '_k', $key_id, $expires, $phpbb_cookie_path, $phpbb_cookie_domain, $secure, $httponly, true);
+					    $_COOKIE[$phpbb_cookie_name . '_k'] = $key_id;
+				    }
 			    } else {
-				    throw new RuntimeException(Text::_('INVALID_USERID'));
+				    throw new RuntimeException(Text::_('INVALID_COOKIENAME'));
 			    }
 		    }
-	    } catch (Exception $e) {
-		    $status['error'][] = $e->getMessage();
+	    } else {
+		    throw new RuntimeException(Text::_('INVALID_USERID'));
 	    }
         return $status;
     }
