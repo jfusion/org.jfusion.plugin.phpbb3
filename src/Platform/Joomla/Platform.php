@@ -1991,7 +1991,7 @@ HTML;
 		 * @ignore
 		 * @var $platform \JFusion\Plugin\Platform\Joomla
 		 */
-		$platform = Factory::getPlayform('Joomla', $this->getJname());
+		$platform = Factory::getPlatform('Joomla', $this->getJname());
 		if ($pluginParam->get('forum_mode', 0)) {
 			$selected_ids = $pluginParam->get('selected_forums', array());
 			$forumids = $platform->filterForumList($selected_ids);
@@ -2049,7 +2049,7 @@ HTML;
 		 * @ignore
 		 * @var $platform \JFusion\Plugin\Platform\Joomla
 		 */
-		$platform = Factory::getPlayform('Joomla', $this->getJname());
+		$platform = Factory::getPlatform('Joomla', $this->getJname());
 		return $platform->getPostURL($post->topic_id, $post->post_id);
 	}
 
@@ -2128,7 +2128,7 @@ HTML;
 				define('PHPBB_DB_NEW_LINK', 1);
 			}
 
-			$hooks = Factory::getPlayform($jfdata->platform, $this->getJname())->hasFile('hooks.php');
+			$hooks = Factory::getPlatform($jfdata->platform, $this->getJname())->hasFile('hooks.php');
 			if ($hooks) {
 				//define the phpBB3 hooks
 				require_once $hooks;
