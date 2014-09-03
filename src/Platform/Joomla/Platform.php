@@ -12,6 +12,7 @@
 use JFusion\Application\Application;
 use JFusion\Factory;
 use JFusion\Framework;
+use JFusion\Parser\Parser;
 use JFusion\User\Userinfo;
 use JFusion\Plugins\phpbb3\Helper;
 use JFusion\Plugin\Platform\Joomla;
@@ -1496,7 +1497,8 @@ class Platform extends Joomla
 				//replace plugin with nothing
 				$text = str_replace('{' . $plugin . '}', "", $text);
 			}
-			$text = Framework::parseCode($text, 'bbcode');
+			$parser = new Parser();
+			$text = $parser->parseCode($text, 'bbcode');
 		} elseif ($for == 'joomla' || ($for == 'activity' && $params->get('parse_text') == 'html')) {
 			//remove phpbb bbcode uids
 			$text = preg_replace('#\[(.*?):(.*?)]#si', '[$1]', $text);
@@ -1529,7 +1531,8 @@ class Platform extends Joomla
 				$status['limit_applied'] = 1;
 				$options['character_limit'] = $params->get('character_limit');
 			}
-			$text = Framework::parseCode($text, 'html', $options);
+			$parser = new Parser();
+			$text = $parser->parseCode($text, 'html', $options);
 		} elseif ($for == 'activity' || $for == 'search') {
 			$text = preg_replace('#\[(.*?):(.*?)]#si', '[$1]', $text);
 			$text = html_entity_decode($text);
@@ -1541,10 +1544,12 @@ class Platform extends Joomla
 						$status['limit_applied'] = 1;
 						$options['character_limit'] = $params->get('character_limit');
 					}
-					$text = Framework::parseCode($text, 'plaintext', $options);
+					$parser = new Parser();
+					$text = $parser->parseCode($text, 'plaintext', $options);
 				}
 			} else {
-				$text = Framework::parseCode($text, 'plaintext');
+				$parser = new Parser();
+				$text = $parser->parseCode($text, 'plaintext');
 			}
 		}
 
