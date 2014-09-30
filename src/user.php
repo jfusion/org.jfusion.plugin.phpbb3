@@ -53,10 +53,6 @@ class User extends \JFusion\Plugin\User
 		    list($identifier_type, $identifier) = $this->getUserIdentifier($userinfo, 'a.username', 'a.user_email', 'a.user_id');
 		    // Get a database object
 		    $db = Factory::getDatabase($this->getJname());
-		    //make the username case insensitive
-		    if ($identifier_type == 'a.username_clean') {
-			    $identifier = $this->filterUsername($identifier);
-		    }
 
 		    $query = $db->getQuery(true)
 			    ->select('a.user_id as userid, a.username as name, a.username as username, a.user_email as email, a.user_password as password, null as password_salt, a.user_actkey as activation, a.user_inactive_reason as reason, a.user_lastvisit as lastvisit, a.group_id, b.group_name, a.user_type, a.user_avatar, a.user_avatar_type')
@@ -377,6 +373,23 @@ class User extends \JFusion\Plugin\User
         //die($username . ':' . $username_clean);
         return $username_clean;
     }
+
+	/**
+	 * used to validate if a user can be created or not
+	 * should throw exception if user can't be created with info about the error.
+	 *
+	 * @param $userinfo
+	 *
+	 * @return boolean
+	 */
+	function validateUser(Userinfo $userinfo)
+	{
+		$username = $this->filterUsername($userinfo->username);
+		if ($username !== $userinfo->username) {
+			throw new RuntimeException('Has Invalid Character: ' . $userinfo->username . ' vs ' . $username);
+		}
+		return true;
+	}
 
     /**
      * @param Userinfo $userinfo
