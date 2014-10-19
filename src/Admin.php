@@ -446,7 +446,7 @@ HTML;
 		        } else if (!pair && i === 0) {
 		        	options.attr('disabled', 'disabled');
 		        } else {
-		            if (pair && pair.groups && pair.groups.contains(group.id)) {
+		            if (pair && pair.groups && $.inArray(group.id, pair.groups) >= 0) {
 		            	options.attr('selected', 'selected');
 		        	}
 		        }
