@@ -399,10 +399,10 @@ HTML;
 			defaultselect.attr('id', 'usergroups_'+plugin.name+index+'defaultgroup');
 
 			defaultselect.change(function() {
-                var value = this.get('value');
+                var value = $(this).val();
 
 				$('#'+'usergroups_'+plugin.name+index+'groups'+' option').each(function() {
-					if ($(this).attr('value') == value) {
+					if ($(this).val() == value) {
 						$(this).prop('selected', false);
 						$(this).prop('disabled', true);
 
