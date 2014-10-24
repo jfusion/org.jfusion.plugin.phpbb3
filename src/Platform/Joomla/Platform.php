@@ -17,6 +17,7 @@ use JFusion\User\Userinfo;
 use JFusion\Plugins\phpbb3\Helper;
 use JFusion\Plugin\Platform\Joomla;
 
+use JFusionFunction;
 use Joomla\Filesystem\File;
 use Joomla\Language\Text;
 use Joomla\Registry\Registry;

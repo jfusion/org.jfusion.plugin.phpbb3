@@ -386,10 +386,11 @@ HTML;
 		Application::getInstance()->loadScriptLanguage(array('MAIN_USERGROUP', 'MEMBERGROUPS'));
 
 		$js = <<<JS
-		JFusion.renderPlugin['{$jname}'] = function(index, plugin, pair) {
-			var usergroups = JFusion.usergroups[plugin.name];
-
+		JFusion.renderPlugin['{$jname}'] = function(index, plugin, pair, usergroups) {
 			var root = $('<div></div>');
+
+			var defaultgroup = $(pair).prop('defaultgroup');
+			var groups = $(pair).prop('groups');
 
 			// render default group
 			root.append($('<div>' + JFusion.Text._('MAIN_USERGROUP') + '</div>'));
@@ -419,7 +420,7 @@ HTML;
 				options.val(group.id);
     			options.html(group.name);
 
-		        if (pair && pair.defaultgroup && pair.defaultgroup == group.id) {
+		        if (pair && defaultgroup && defaultgroup == group.id) {
 					options.attr('selected','selected');
 		        }
 
@@ -441,12 +442,12 @@ HTML;
 				options.val(group.id);
     			options.html(group.name);
 
-		        if (pair && pair.defaultgroup == group.id) {
+		        if (pair && defaultgroup == group.id) {
 		        	options.attr('disabled', 'disabled');
 		        } else if (!pair && i === 0) {
 		        	options.attr('disabled', 'disabled');
 		        } else {
-		            if (pair && pair.groups && $.inArray(group.id, pair.groups) >= 0) {
+		            if (pair && groups && $.inArray(group.id, groups) >= 0) {
 		            	options.attr('selected', 'selected');
 		        	}
 		        }
