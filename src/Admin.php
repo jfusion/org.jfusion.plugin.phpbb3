@@ -267,6 +267,9 @@ class Admin extends \JFusion\Plugin\Admin
      */
     function showQuickMod($name, $value, $node, $control_name)
     {
+	    /**
+	     * TODO: REMOVE/MOVE ? or fix image path?
+	     */
         $error = 0;
         $reason = '';
         $mod_file = $this->getPluginFile('mcp.php', $error, $reason);
