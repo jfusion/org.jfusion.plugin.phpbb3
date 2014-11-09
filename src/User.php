@@ -771,7 +771,7 @@ class User extends \JFusion\Plugin\User
 			    $user->user_ip = '';
 			    $user->user_regdate = time();
 			    $user->user_passchg = time();
-			    $user->user_options = 895;
+			    $user->user_options = 230207;
 			    if (!empty($userinfo->activation) && $update_activation) {
 				    $user->user_inactive_reason = 1;
 				    $user->user_actkey = $userinfo->activation;
