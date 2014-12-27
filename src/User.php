@@ -72,7 +72,7 @@ class User extends \JFusion\Plugin\User
 					    ->select('ug.group_id as group_id, g.group_name')
 					    ->from('#__user_group as ug')
 					    ->join('LEFT OUTER', '#__groups as g ON ug.group_id = g.group_id')
-					    ->where('ug.user_id = ' . $db->quote($result->userid));
+					    ->where('ug.user_id = ' . (int)$result->userid);
 
 				    $db->setQuery($query);
 				    $groups = $db->loadObjectList();
