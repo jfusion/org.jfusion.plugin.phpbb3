@@ -289,7 +289,7 @@ class Admin extends \JFusion\Plugin\Admin
             $text = Text::_('QUICKTOOLS') . ' ' . Text::_('ENABLED');
             $disable = Text::_('MOD_DISABLE');
             $output = <<<HTML
-            <img src="components/com_jfusion/images/check_good_small.png">{$text}
+            <span class="check" style="color: green;">&#x2714;</span> {$text}
             <a href="javascript:void(0);" onclick="return JFusion.Plugin.module('quickMod', 'disable')">{$disable}</a>
 HTML;
             return $output;
@@ -297,7 +297,7 @@ HTML;
             $text = Text::_('QUICKTOOLS') . ' ' . Text::_('DISABLED') . ': ' . $reason;
             $enable = Text::_('MOD_ENABLE');
             $output = <<<HTML
-            <img src="components/com_jfusion/images/check_bad_small.png">{$text}
+            <span class="check" style="color: red;">&#x2716;</span> {$text}
             <a href="javascript:void(0);" onclick="return JFusion.Plugin.module('quickMod', 'enable')">{$enable}</a>
 HTML;
             return $output;
