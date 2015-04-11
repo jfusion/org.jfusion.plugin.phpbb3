@@ -1361,9 +1361,7 @@ class Platform extends Joomla
 								$JoomlaUser = Factory::getUser('joomla_int');
 								$userinfo = $JoomlaUser->getUser($user_identifiers);
 								if (!empty($userinfo)) {
-									global $JFusionActivePlugin;
-									$JFusionActivePlugin = $this->getJname();
-
+									Factory::getStatus()->set('active.plugin', $this->getJname());
 									try {
 										if ($userinfo->canLogin()) {
 											$status = $JoomlaUser->createSession($userinfo, $options);
