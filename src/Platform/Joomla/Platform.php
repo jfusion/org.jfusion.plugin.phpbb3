@@ -10,6 +10,7 @@
  */
 
 use JFusion\Application\Application;
+use JFusion\Config;
 use JFusion\Factory;
 use JFusion\Framework;
 use JFusion\Parser\Parser;
@@ -691,7 +692,7 @@ class Platform extends Joomla
 		$phpbbUser = $db->loadObject();
 
 		if ($dbparams->get('use_content_created_date', false)) {
-			$timezone = Factory::getConfig()->get('offset');
+			$timezone = Config::get()->get('offset');
 			$timestamp = strtotime($contentitem->created);
 			//undo Joomla timezone offset
 			$timestamp += ($timezone * 3600);
