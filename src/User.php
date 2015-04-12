@@ -735,7 +735,7 @@ class User extends \JFusion\Plugin\User
 		    $query = $db->getQuery(true)
 			    ->select('user_id as userid, username as username')
 			    ->from('#__users')
-			    ->where('username_clear = ' . $db->quote($username_clean));
+			    ->where('username_clean = ' . $db->quote($username_clean));
 
 		    $db->setQuery($query);
 		    $result = $db->loadObject();
