@@ -150,14 +150,14 @@ class Platform extends Joomla
     }
 
     /**
-     * @param int $puser_id
+     * @param int $userid
      *
      * @return array
      */
-    function getPrivateMessageCounts($puser_id) {
+    function getPrivateMessageCounts($userid) {
 	    $unreadCount = $totalCount = 0;
 	    try {
-		    if ($puser_id) {
+		    if ($userid) {
 			    // read pm counts
 			    $db = Factory::getDatabase($this->getJname());
 
@@ -167,7 +167,7 @@ class Platform extends Joomla
 				    ->from('#__privmsgs_to')
 				    ->where('pm_unread = 1')
 				    ->where('folder_id <> -2')
-				    ->where('user_id = ' . (int)$puser_id);
+				    ->where('user_id = ' . (int)$userid);
 
 			    $db->setQuery($query);
 			    $unreadCount = $db->loadResult();
@@ -177,7 +177,7 @@ class Platform extends Joomla
 				    ->select('COUNT(msg_id)')
 				    ->from('#__privmsgs_to')
 				    ->where('folder_id NOT IN (-1, -2)')
-				    ->where('user_id = ' . (int)$puser_id);
+				    ->where('user_id = ' . (int)$userid);
 
 			    $db->setQuery($query);
 			    $totalCount = $db->loadResult();
