@@ -2182,13 +2182,7 @@ HTML;
 		}
 	}
 
-	/**
-	 * @param object $data
-	 *
-	 * @return void
-	 */
-	function parseBody(&$data) {
-
+	function parseBody() {
 		static $regex_body, $replace_body, $callback_function;
 		if (!$regex_body || !$replace_body || $callback_function) {
 			// Define our preg arrays
@@ -2197,7 +2191,7 @@ HTML;
 			$callback_function = array();
 			//fix anchors
 			$regex_body[] = '#\"\#(.*?)\"#mS';
-			$replace_body[] = '"' . $data->fullURL . '#$1"';
+			$replace_body[] = '"' . $this->data->fullURL . '#$1"';
 			$callback_function[] = '';
 
 			//parse URLS
@@ -2207,15 +2201,15 @@ HTML;
 
 			//convert relative links from images into absolute links
 			$regex_body[] = '#(src="|background="|url\(\'?)./(.*?)("|\'?\))#mS';
-			$replace_body[] = '$1' . $data->integratedURL . '$2$3';
+			$replace_body[] = '$1' . $this->data->integratedURL . '$2$3';
 			$callback_function[] = '';
 			//fix for form actions
 			$regex_body[] = '#action="(.*?)"(.*?)>#m';
-			$replace_body[] = ''; //$this->fixAction('$1', '$2', "' . $data->baseURL . '")';
+			$replace_body[] = ''; //$this->fixAction('$1', '$2', "' . $this->data->baseURL . '")';
 			$callback_function[] = 'fixAction';
 			//convert relative popup links to full url links
 			$regex_body[] = '#popup\(\'\.\/(.*?)\'#mS';
-			$replace_body[] = 'popup(\'' . $data->integratedURL . '$1\'';
+			$replace_body[] = 'popup(\'' . $this->data->integratedURL . '$1\'';
 			$callback_function[] = '';
 			//fix for mcp links
 			$mainframe = Application::getInstance();
@@ -2245,9 +2239,9 @@ HTML;
 		foreach ($regex_body as $k => $v) {
 			//check if we need to use callback
 			if(!empty($callback_function[$k])){
-				$data->body = preg_replace_callback($regex_body[$k], array(&$this, $callback_function[$k]), $data->body);
+				$this->data->body = preg_replace_callback($regex_body[$k], array(&$this, $callback_function[$k]), $this->data->body);
 			} else {
-				$data->body = preg_replace($regex_body[$k], $replace_body[$k], $data->body);
+				$this->data->body = preg_replace($regex_body[$k], $replace_body[$k], $this->data->body);
 			}
 		}
 	}
@@ -2494,12 +2488,7 @@ HTML;
 		return $replacement;
 	}
 
-	/**
-	 * @param object $data
-	 *
-	 * @return void
-	 */
-	function parseHeader(&$data) {
+	function parseHeader() {
 		static $regex_header, $replace_header;
 		if (!$regex_header || !$replace_header) {
 			// Define our preg arrays
@@ -2508,19 +2497,19 @@ HTML;
 			$callback_header = array();
 			//convert relative links into absolute links
 			$regex_header[] = '#(href="|src=")./(.*?")#mS';
-			$replace_header[] = '$1' . $data->integratedURL . '$2';
+			$replace_header[] = '$1' . $this->data->integratedURL . '$2';
 			$callback_header[] = '';
 			//fix for URL redirects
 			$regex_header[] = '#<meta http-equiv="refresh" content="(.*?)"(.*?)>#m';
-			$replace_header[] = ''; //$this->fixRedirect("$1","' . $data->baseURL . '")';
+			$replace_header[] = ''; //$this->fixRedirect("$1","' . $this->data->baseURL . '")';
 			$callback_header[] = 'fixRedirect';
 			//fix pm popup URL to be absolute for some phpBB templates
 			$regex_header[] = '#var url = \'\.\/(.*?)\';#mS';
-			$replace_header[] = 'var url = \'{$data->integratedURL}$1\';';
+			$replace_header[] = 'var url = \'{$this->data->integratedURL}$1\';';
 			$callback_header[] = '';
 			//convert relative popup links to full url links
 			$regex_header[] = '#popup\(\'\.\/(.*?)\'#mS';
-			$replace_header[] = 'popup(\'' . $data->integratedURL . '$1\'';
+			$replace_header[] = 'popup(\'' . $this->data->integratedURL . '$1\'';
 			$callback_header[] = '';
 		}
 
@@ -2530,9 +2519,9 @@ HTML;
 		foreach ($regex_header as $k => $v) {
 			//check if we need to use callback
 			if(!empty($callback_header[$k])){
-				$data->header = preg_replace_callback($regex_header[$k], array(&$this, $callback_header[$k]), $data->header);
+				$this->data->header = preg_replace_callback($regex_header[$k], array(&$this, $callback_header[$k]), $this->data->header);
 			} else {
-				$data->header = preg_replace($regex_header[$k], $replace_header[$k], $data->header);
+				$this->data->header = preg_replace($regex_header[$k], $replace_header[$k], $this->data->header);
 			}
 		}
 	}
