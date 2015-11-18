@@ -851,7 +851,7 @@ class Platform extends Joomla
 		$bbcode = $this->helper->bbcode_parser($text);
 
 		$timestamp = $dbparams->get('use_content_created_date', false) ? Factory::getDate($contentitem->created)->toUnix() : time();
-		$userid = $dbparams->get('default_user');
+		$userid = $dbparams->get('default_userid');
 
 		$query = $db->getQuery(true)
 			->select('post_edit_count')
