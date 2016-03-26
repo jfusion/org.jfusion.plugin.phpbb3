@@ -613,7 +613,6 @@ class User extends \JFusion\Plugin\User
 					}
 				}
 			}
-
 		}
 
 		if ($update_groups) {
@@ -1309,7 +1308,6 @@ class User extends \JFusion\Plugin\User
 						//check to see if member groups are different
 						if (count($userinfo->groups) != count($mastergroup->groups)) {
 							$found = false;
-							break;
 						} else {
 							foreach ($mastergroup->groups as $gid) {
 								if (!in_array($gid, $userinfo->groups)) {
